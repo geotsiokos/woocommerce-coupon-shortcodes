@@ -43,6 +43,7 @@ define( 'WOO_CODES_CORE_DIR', WP_PLUGIN_DIR . '/woocommerce-coupon-shortcodes' )
 define( 'WOO_CODES_CORE_LIB', WOO_CODES_CORE_DIR . '/lib/core' );
 define( 'WOO_CODES_ADMIN_LIB', WOO_CODES_CORE_DIR . '/lib/admin' );
 define( 'WOO_CODES_VIEWS_LIB', WOO_CODES_CORE_DIR . '/lib/views' );
+define( 'WOO_CODES_BLOCKS_LIB', WOO_CODES_CORE_DIR . '/lib/blocks' );
 define( 'WOO_CODES_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-coupon-shortcodes' );
 
 // @since 1.21.0
