@@ -26,7 +26,7 @@ if ( !defined( 'ABSPATH' ) ) {
 class WooCommerce_Coupon_Shortcodes_Blocks {
 
 	public static function init() {
-		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_block_init' ) );
+		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 11 );
 		if ( function_exists( 'get_default_block_categories' ) ) {
 			add_filter( 'block_categories_all', array( __CLASS__, 'block_categories_all' ), 10, 2 );
 		} else {
@@ -34,11 +34,10 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		}
 	}
 
-	public static function woocommerce_coupon_shortcodes_blocks_block_init() {
+	public static function woocommerce_coupon_shortcodes_blocks_init() {
 		if ( ! function_exists( 'register_block_type' ) ) {
 			return;
 		}
-
 		$asset_file = include WOO_CODES_BLOCKS_LIB . '/build/index.asset.php';
 
 		$editor_dependencies = array_merge(
@@ -47,8 +46,8 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		);
 
 		wp_register_script(
-			'woo_codes_blocks-block-js', // Handle.
-			plugins_url( 'lib/blocks/build/index.js', __FILE__ ),
+			'woo-codes-blocks-block-js', // Handle.
+			WOO_CODES_PLUGIN_URL . '/lib/blocks/build/index.js',
 			$editor_dependencies,
 			WOO_CODES_PLUGIN_VERSION
 		);
@@ -56,10 +55,10 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		register_block_type(
 			'woocommerce-coupon-shortcodes/coupon-is-active',
 			array(
-				'editor_script'   => 'woo_codes_blocks-block-js',
-				'editor_style'    => 'woo_codes_blocks-block-editor-css',
+				'editor_script'   => 'woo-codes-blocks-block-js',
+				//'editor_style'    => 'woo_codes_blocks-block-editor-css',
 				//'style'           => 'woo_codes_blocks-style-css',
-				'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
+				//'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
 			)
 		);
 	}
