@@ -26,12 +26,50 @@ if ( !defined( 'ABSPATH' ) ) {
 class WooCommerce_Coupon_Shortcodes_Blocks {
 
 	public static function init() {
-		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 11 );
+		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 10 );
+		//add_action( 'rest_api_init', array( __CLASS__, 'woocommerce_coupon_shortcodes_rest' ) );
 		if ( function_exists( 'get_default_block_categories' ) ) {
 			add_filter( 'block_categories_all', array( __CLASS__, 'block_categories_all' ), 10, 2 );
 		} else {
-			add_filter( 'block_categories', array( __CLASS__, 'groups_block_categories' ), 10, 2 );
+			add_filter( 'block_categories', array( __CLASS__, 'woocommerce_coupon_shortcodes_block_categories' ), 10, 2 );
 		}
+	}
+
+	public static function woocommerce_coupon_shortcodes_rest() {
+		register_rest_route(
+			'woocommerce-coupon-shortcodes/blocks',
+			'/woocommerce-coupon-shortcodes',
+			array(
+				// Get the list of existing groups.
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( __CLASS__, 'woocommerce_coupon_shortcodes_get_coupons' ),
+					// Restrict access for the endpoint only to users that can administrate groups restrictions.
+						'permission_callback' => function () {
+						return true; },
+				),
+			)
+		);
+	}
+
+	public static function woocommerce_coupon_shortcodes_get_coupons() {
+		$coupon_codes = array();
+		$args = array(
+			'posts_per_page'   => -1,
+			'orderby'          => 'title',
+			'order'            => 'asc',
+			'post_type'        => 'shop_coupon',
+			'post_status'      => 'publish',
+		);
+
+		$coupons = get_posts( $args );
+		// Get coupon titles aka codes
+		foreach ( $coupons as $coupon ) {
+			// Get the name for each coupon post
+			$coupon_name = $coupon->post_title;
+			array_push( $coupon_codes, $coupon_name );
+		}
+		return $coupon_codes;
 	}
 
 	public static function woocommerce_coupon_shortcodes_blocks_init() {
@@ -76,7 +114,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		return $block_categories;
 	}
 
-	public static function groups_block_categories( $categories, $post ) {
+	public static function woocommerce_coupon_shortcodes_block_categories( $categories, $post ) {
 		$categories = array_merge(
 			$categories,
 			array(
