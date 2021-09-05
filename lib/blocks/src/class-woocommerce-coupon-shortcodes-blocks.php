@@ -26,8 +26,9 @@ if ( !defined( 'ABSPATH' ) ) {
 class WooCommerce_Coupon_Shortcodes_Blocks {
 
 	public static function init() {
-		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 10 );
-		//add_action( 'rest_api_init', array( __CLASS__, 'woocommerce_coupon_shortcodes_rest' ) );
+		// @todo check why it won't show the block if we use the default hook priority aka 10
+		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 11 );
+		add_action( 'rest_api_init', array( __CLASS__, 'woocommerce_coupon_shortcodes_rest' ), 12 );
 		if ( function_exists( 'get_default_block_categories' ) ) {
 			add_filter( 'block_categories_all', array( __CLASS__, 'block_categories_all' ), 10, 2 );
 		} else {
@@ -40,20 +41,21 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			'woocommerce-coupon-shortcodes/blocks',
 			'/woocommerce-coupon-shortcodes',
 			array(
-				// Get the list of existing groups.
-				array(
+				// Get the list of existing coupon codes.
+				//array(
 					'methods'             => 'GET',
 					'callback'            => array( __CLASS__, 'woocommerce_coupon_shortcodes_get_coupons' ),
 					// Restrict access for the endpoint only to users that can administrate groups restrictions.
-						'permission_callback' => function () {
-						return true; },
-				),
-			)
+					'permission_callback' => function() {
+						return current_user_can( 'edit_posts' );
+					},
+				//),
+			),
 		);
 	}
 
 	public static function woocommerce_coupon_shortcodes_get_coupons() {
-		$coupon_codes = array();
+		$coupon_codes = array();error_log( 'get coupons');
 		$args = array(
 			'posts_per_page'   => -1,
 			'orderby'          => 'title',
@@ -62,14 +64,29 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			'post_status'      => 'publish',
 		);
 
-		$coupons = get_posts( $args );
+		$coupons = get_posts( $args );error_log( print_r( $coupons, true ) );
 		// Get coupon titles aka codes
 		foreach ( $coupons as $coupon ) {
 			// Get the name for each coupon post
-			$coupon_name = $coupon->post_title;
-			array_push( $coupon_codes, $coupon_name );
-		}
+			//$coupon_name = $coupon->post_title;
+			$coupon_codes[] = array(
+				'value' => $coupon->post_title,
+				'label' => $coupon->post_title
+			);
+		}error_log( print_r( $coupon_codes, true ) );
 		return $coupon_codes;
+	}
+
+	public static function woocommerce_coupon_shortcodes_access_permission() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				esc_html__( 'Access denied', WOO_CODES_PLUGIN_DOMAIN ),
+				array( 'status' => 401 )
+			);
+		}
+
+		return true;
 	}
 
 	public static function woocommerce_coupon_shortcodes_blocks_init() {
