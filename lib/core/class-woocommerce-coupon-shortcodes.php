@@ -62,7 +62,6 @@ class WooCommerce_Coupon_Shortcodes {
 					require_once WOO_CODES_ADMIN_LIB . '/class-woocommerce-coupon-shortcodes-admin-notice.php';
 				}
 				require_once WOO_CODES_ADMIN_LIB . '/class-woocommerce-coupon-shortcodes-admin-coupon.php';
-				//require_once WOO_CODES_BLOCKS_LIB . '/src/class-woocommerce-coupon-shortcodes-blocks.php';
 			}
 		}
 	}
