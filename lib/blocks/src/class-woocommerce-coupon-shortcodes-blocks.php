@@ -28,7 +28,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 	public static function init() {
 		// @todo check why it won't show the block if we use the default hook priority aka 10
 		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 11 );
-		add_action( 'rest_api_init', array( __CLASS__, 'woocommerce_coupon_shortcodes_rest' ), 12 );
+		add_action( 'rest_api_init', array( __CLASS__, 'woocommerce_coupon_shortcodes_rest' ) );
 		if ( function_exists( 'get_default_block_categories' ) ) {
 			add_filter( 'block_categories_all', array( __CLASS__, 'block_categories_all' ), 10, 2 );
 		} else {
@@ -42,14 +42,14 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			'/woocommerce-coupon-shortcodes',
 			array(
 				// Get the list of existing coupon codes.
-				//array(
+				array(
 					'methods'             => 'GET',
 					'callback'            => array( __CLASS__, 'woocommerce_coupon_shortcodes_get_coupons' ),
 					// Restrict access for the endpoint only to users that can administrate groups restrictions.
 					'permission_callback' => function() {
 						return current_user_can( 'edit_posts' );
 					},
-				//),
+				),
 			),
 		);
 	}
