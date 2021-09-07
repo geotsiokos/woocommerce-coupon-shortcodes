@@ -55,7 +55,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 	}
 
 	public static function woocommerce_coupon_shortcodes_get_coupons() {
-		$coupon_codes = array();error_log( 'get coupons');
+		$coupon_codes = array();
 		$args = array(
 			'posts_per_page'   => -1,
 			'orderby'          => 'title',
@@ -64,16 +64,20 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			'post_status'      => 'publish',
 		);
 
-		$coupons = get_posts( $args );error_log( print_r( $coupons, true ) );
+		$coupons = get_posts( $args );
 		// Get coupon titles aka codes
+		$coupon_codes[] = array(
+				'value' => '*',
+				'label' => esc_html__( 'All active coupons', WOO_CODES_PLUGIN_DOMAIN )
+		);
 		foreach ( $coupons as $coupon ) {
 			// Get the name for each coupon post
-			//$coupon_name = $coupon->post_title;
 			$coupon_codes[] = array(
 				'value' => $coupon->post_title,
 				'label' => $coupon->post_title
 			);
-		}error_log( print_r( $coupon_codes, true ) );
+		}
+		error_log( print_r( $coupon_codes, true ) );
 		return $coupon_codes;
 	}
 
@@ -113,7 +117,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 				'editor_script'   => 'woo-codes-blocks-block-js',
 				//'editor_style'    => 'woo_codes_blocks-block-editor-css',
 				//'style'           => 'woo_codes_blocks-style-css',
-				//'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
+				'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
 			)
 		);
 	}
