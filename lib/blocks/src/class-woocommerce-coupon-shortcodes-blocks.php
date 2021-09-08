@@ -111,12 +111,19 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			WOO_CODES_PLUGIN_VERSION
 		);
 
+		wp_register_style(
+			'woo_codes_blocks-block-editor-css', // Handle.
+			WOO_CODES_PLUGIN_URL . 'lib/blocks/build/index.css',
+			array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
+			WOO_CODES_PLUGIN_VERSION
+		);
+
 		register_block_type(
 			'woocommerce-coupon-shortcodes/coupon-is-active',
 			array(
 				'editor_script'   => 'woo-codes-blocks-block-js',
-				//'editor_style'    => 'woo_codes_blocks-block-editor-css',
-				//'style'           => 'woo_codes_blocks-style-css',
+				'editor_style'    => 'woo-codes-blocks-block-editor-css',
+				'style'           => 'woo-codes_blocks-style-css',
 				'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
 			)
 		);
@@ -149,7 +156,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 	}
 
 	public static function coupon_is_active_render_content( $attributes, $content ) {
-		return $content;
+		return '<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
 	}
 
 } WooCommerce_Coupon_Shortcodes_Blocks::init();
