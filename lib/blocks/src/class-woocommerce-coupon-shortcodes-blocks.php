@@ -67,8 +67,8 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		$coupons = get_posts( $args );
 		// Get coupon titles aka codes
 		$coupon_codes[] = array(
-				'value' => '*',
-				'label' => esc_html__( 'All active coupons', WOO_CODES_PLUGIN_DOMAIN )
+			'value' => '*',
+			'label' => esc_html__( 'All active coupons', WOO_CODES_PLUGIN_DOMAIN )
 		);
 		foreach ( $coupons as $coupon ) {
 			// Get the name for each coupon post
@@ -156,6 +156,20 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 	}
 
 	public static function coupon_is_active_render_content( $attributes, $content ) {
+		$output = '';
+		if ( isset($attributes['coupon_codes_select'] ) ) {
+			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
+		}
+		$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
+		$actives = array();
+		foreach ( $decoded_coupon_codes as $code ) {
+			$coupon = new WC_Coupon( $code );
+			$actives[] =
+				$wcs_discounts->_wcs_coupon_exists( $coupon ) &&
+				!$wcs_discounts->_wcs_coupon_is_expired( $coupon ) &&
+				$wcs_discounts->_wcs_coupon_is_useable( $coupon );
+		}
+		error_log( 'attributes' ); error_log( print_r( $decoded_coupon_codes, true ) );
 		return '<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
 	}
 
