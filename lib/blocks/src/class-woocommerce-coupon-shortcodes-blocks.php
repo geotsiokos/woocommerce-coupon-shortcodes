@@ -23,6 +23,8 @@ if ( !defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+//require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
+
 class WooCommerce_Coupon_Shortcodes_Blocks {
 
 	public static function init() {
@@ -157,20 +159,36 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 
 	public static function coupon_is_active_render_content( $attributes, $content ) {
 		$output = '';
-		if ( isset($attributes['coupon_codes_select'] ) ) {
+		$active = false;
+		require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
+		if ( isset( $attributes['coupon_codes_select'] ) ) {
 			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
+
+			$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
+			$actives = array();
+			foreach ( $decoded_coupon_codes as $code ) {
+				$coupon = new WC_Coupon( $code->value );
+				$actives[] =
+					$wcs_discounts->_wcs_coupon_exists( $coupon ) &&
+					!$wcs_discounts->_wcs_coupon_is_expired( $coupon ) &&
+					$wcs_discounts->_wcs_coupon_is_useable( $coupon );
+			}
+			$decoded_operator = json_decode( $attributes['operator_select'] );
+			switch( strtolower( $decoded_operator ) ) {
+				case 'or' :
+					$active = WooCommerce_Coupon_Shortcodes_Views::disj( $actives );
+					break;
+				default :
+					$active = WooCommerce_Coupon_Shortcodes_Views::conj( $actives );
+			}
+	
+			error_log( 'attributes' ); error_log( print_r( $decoded_operator, true ) );
+			if ( $active ) {
+				$output .='<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
+			}
 		}
-		$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
-		$actives = array();
-		foreach ( $decoded_coupon_codes as $code ) {
-			$coupon = new WC_Coupon( $code );
-			$actives[] =
-				$wcs_discounts->_wcs_coupon_exists( $coupon ) &&
-				!$wcs_discounts->_wcs_coupon_is_expired( $coupon ) &&
-				$wcs_discounts->_wcs_coupon_is_useable( $coupon );
-		}
-		error_log( 'attributes' ); error_log( print_r( $decoded_coupon_codes, true ) );
-		return '<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
+
+		return $output;
 	}
 
 } WooCommerce_Coupon_Shortcodes_Blocks::init();
