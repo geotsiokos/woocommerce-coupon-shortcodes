@@ -52,3 +52,4 @@ if ( !defined( 'WOOCOMMERCE_COUPON_SHORTCODES_HARD_LIMIT' ) ) {
 }
 
 require_once WOO_CODES_CORE_LIB . '/class-woocommerce-coupon-shortcodes.php';
+require_once WOO_CODES_BLOCKS_LIB . '/src/class-woocommerce-coupon-shortcodes-blocks.php';

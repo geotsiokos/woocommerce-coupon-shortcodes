@@ -55,7 +55,7 @@ class WooCommerce_Coupon_Shortcodes {
 		load_plugin_textdomain( WOO_CODES_PLUGIN_DOMAIN, null, 'woocommerce-coupon-shortcodes/languages' );
 		if ( self::check_dependencies() ) {
 			require_once( WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php' );
-			require_once WOO_CODES_BLOCKS_LIB . '/src/class-woocommerce-coupon-shortcodes-blocks.php';
+			//require_once WOO_CODES_BLOCKS_LIB . '/src/class-woocommerce-coupon-shortcodes-blocks.php';
 			// notice
 			if ( is_admin() ) {
 				if ( current_user_can( 'activate_plugins' ) ) { // important: after init hook

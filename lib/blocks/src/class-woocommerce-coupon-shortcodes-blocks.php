@@ -28,8 +28,7 @@ if ( !defined( 'ABSPATH' ) ) {
 class WooCommerce_Coupon_Shortcodes_Blocks {
 
 	public static function init() {
-		// @todo check why it won't show the block if we use the default hook priority aka 10
-		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ), 11 );
+		add_action( 'init', array( __CLASS__, 'woocommerce_coupon_shortcodes_blocks_init' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'woocommerce_coupon_shortcodes_rest' ) );
 		if ( function_exists( 'get_default_block_categories' ) ) {
 			add_filter( 'block_categories_all', array( __CLASS__, 'block_categories_all' ), 10, 2 );
@@ -79,7 +78,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 				'label' => $coupon->post_title
 			);
 		}
-		error_log( print_r( $coupon_codes, true ) );
+
 		return $coupon_codes;
 	}
 
@@ -114,8 +113,8 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		);
 
 		wp_register_style(
-			'woo_codes_blocks-block-editor-css', // Handle.
-			WOO_CODES_PLUGIN_URL . 'lib/blocks/build/index.css',
+			'woo-codes-blocks-block-editor-css', // Handle.
+			WOO_CODES_PLUGIN_URL . '/lib/blocks/build/index.css',
 			array( 'wp-edit-blocks' ), // Dependency to include the CSS after it.
 			WOO_CODES_PLUGIN_VERSION
 		);
@@ -125,7 +124,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			array(
 				'editor_script'   => 'woo-codes-blocks-block-js',
 				'editor_style'    => 'woo-codes-blocks-block-editor-css',
-				'style'           => 'woo-codes_blocks-style-css',
+				'style'           => 'woo-codes-blocks-style-css',
 				'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
 			)
 		);
@@ -163,7 +162,6 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
 		if ( isset( $attributes['coupon_codes_select'] ) ) {
 			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
-
 			$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
 			$actives = array();
 			foreach ( $decoded_coupon_codes as $code ) {
@@ -173,7 +171,10 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 					!$wcs_discounts->_wcs_coupon_is_expired( $coupon ) &&
 					$wcs_discounts->_wcs_coupon_is_useable( $coupon );
 			}
-			$decoded_operator = json_decode( $attributes['operator_select'] );
+			$decoded_operator = 'and';
+			if ( isset( $attributes['operator_select'] ) ) {
+				$decoded_operator = json_decode( $attributes['operator_select'] );
+			}
 			switch( strtolower( $decoded_operator ) ) {
 				case 'or' :
 					$active = WooCommerce_Coupon_Shortcodes_Views::disj( $actives );
@@ -181,8 +182,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 				default :
 					$active = WooCommerce_Coupon_Shortcodes_Views::conj( $actives );
 			}
-	
-			error_log( 'attributes' ); error_log( print_r( $decoded_operator, true ) );
+
 			if ( $active ) {
 				$output .='<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
 			}
