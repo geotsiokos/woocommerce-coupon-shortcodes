@@ -55,33 +55,6 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		);
 	}
 
-	public static function woocommerce_coupon_shortcodes_get_coupons() {
-		$coupon_codes = array();
-		$args = array(
-			'posts_per_page'   => -1,
-			'orderby'          => 'title',
-			'order'            => 'asc',
-			'post_type'        => 'shop_coupon',
-			'post_status'      => 'publish',
-		);
-
-		$coupons = get_posts( $args );
-		// Get coupon titles aka codes
-		$coupon_codes[] = array(
-			'value' => '*',
-			'label' => esc_html__( 'All active coupons', WOO_CODES_PLUGIN_DOMAIN )
-		);
-		foreach ( $coupons as $coupon ) {
-			// Get the name for each coupon post
-			$coupon_codes[] = array(
-				'value' => $coupon->post_title,
-				'label' => $coupon->post_title
-			);
-		}
-
-		return $coupon_codes;
-	}
-
 	public static function woocommerce_coupon_shortcodes_access_permission() {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
@@ -160,7 +133,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		$output = '';
 		$active = false;
 		require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
-		if ( isset( $attributes['coupon_codes_select'] ) ) {
+		if ( isset( $attributes['coupon_codes_select'] ) ) {error_log( print_r( $attributes['coupon_codes_select'], true ) );
 			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
 			$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
 			$actives = array();
@@ -189,6 +162,45 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		}
 
 		return $output;
+	}
+
+	public static function woocommerce_coupon_shortcodes_get_coupons() {
+		
+		//$args = array(
+		//	'posts_per_page'   => -1,
+		//	'orderby'          => 'title',
+		//	'order'            => 'asc',
+		//	'post_type'        => 'shop_coupon',
+		//	'post_status'      => 'publish',
+		//);
+		//$coupons = get_posts( $args );
+		// Get coupon titles aka codes
+		$coupon_codes = array();
+		$coupon_codes[] = array(
+			'value' => '*',
+			'label' => esc_html__( 'All active coupons', WOO_CODES_PLUGIN_DOMAIN )
+		);
+		$all_coupons = self::get_coupons();
+		foreach ( $all_coupons as $coupon ) {
+			// Get the name for each coupon post
+			$coupon_codes[] = array(
+				'value' => $coupon->post_title,
+				'label' => $coupon->post_title
+			);
+		}
+
+		return $coupon_codes;
+	}
+
+	private static function get_coupons() {
+		$args = array(
+			'posts_per_page'   => -1,
+			'orderby'          => 'title',
+			'order'            => 'asc',
+			'post_type'        => 'shop_coupon',
+			'post_status'      => 'publish',
+		);
+		return get_posts( $args );
 	}
 
 } WooCommerce_Coupon_Shortcodes_Blocks::init();
