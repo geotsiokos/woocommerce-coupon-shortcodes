@@ -20,5 +20,8 @@
 .wp-block-woocommerce-coupon-shortcodes-coupon-is-active__selected {
 	border: 1px dashed #33333333;
 }
+.woo-coupon-codes-inspector__control {
+	width: 100%;
+}
 
 /*# sourceMappingURL=index.css.map*/
