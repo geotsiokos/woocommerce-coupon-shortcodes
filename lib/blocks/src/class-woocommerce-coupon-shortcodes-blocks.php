@@ -134,7 +134,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		$active = false;
 		require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
 		if ( isset( $attributes['coupon_codes_select'] ) ) {error_log( print_r( $attributes['coupon_codes_select'], true ) );
-			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
+		$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );error_log( print_r( $decoded_coupon_codes, true ) );
 			$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
 			$actives = array();
 			foreach ( $decoded_coupon_codes as $code ) {
