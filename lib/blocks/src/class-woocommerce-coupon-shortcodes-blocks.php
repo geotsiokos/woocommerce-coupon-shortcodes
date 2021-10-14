@@ -145,7 +145,6 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
 		if ( isset( $attributes['active_coupons'] ) && $attributes['active_coupons'] ) {
 			$coupon_codes = self::woocommerce_coupon_shortcodes_get_coupons();
-			//foreach ( $all_coupons as $coupon)
 			$active = true;
 		} else {
 			if ( isset( $attributes['coupon_codes_select'] ) ) {
@@ -179,8 +178,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 					$active = WooCommerce_Coupon_Shortcodes_Views::conj( $actives );
 			}
 		}
-			
-		
+
 		if ( $active ) {
 			$output .='<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
 		}
@@ -189,22 +187,33 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 	}
 
 	public static function coupon_code_render_content( $attributes, $content ) {
-		$output = '<div class="wp-block-woocommerce-coupon-shortcodes-coupon-code"><p>';
+		$output = '';
+		// this is the default separator
+		$decoded_separator = ' ';
+		if ( isset( $attributes['code_separator'] ) ) {
+			$decoded_separator = json_decode( $attributes['code_separator'] );
+		}
+
 		if ( isset( $attributes['coupon_codes_select'] ) ) {
+			$output = '<div class="wp-block-woocommerce-coupon-shortcodes-coupon-code"><p>';
+
 			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
 			error_log( print_r( $decoded_coupon_codes[0]->value, true ) );
 			$coupon_amount = count( $decoded_coupon_codes );
 			for ( $i = 0; $i < $coupon_amount; $i++ ) {
-				$output = sprintf( '<span class="coupon code %s">', esc_attr( $decoded_coupon_codes[$i]->value ) );
+				$output .= sprintf( '<span class="coupon code %s">', esc_attr( $decoded_coupon_codes[$i]->value ) );
 				$output .= esc_html( $decoded_coupon_codes[$i]->value );
 				$output .= '</span>';
-				if ( !($i = ( $coupon_amount - 1 ) ) ) {
-					$output .= esc_html( ',' );
+				if ( ( $coupon_amount - $i ) > 1  ) {
+					$output .= esc_html( $decoded_separator );
 				}
 			}
+
+			$output .= '</p></div>';
+			$content = '<div class="woo-coupon-codes-coupon-code-block-content">' . $output . '</div>';
 		}
-		$output .= '</p></div>';
-		return '<div class="woo-coupon-codes-coupon-code-block-content">' . $output . '</div>';
+
+		return $content;
 	}
 
 	public static function woocommerce_coupon_shortcodes_get_coupons() {
