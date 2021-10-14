@@ -156,7 +156,7 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 			}
 		}
 
-		if ( count( $coupon_codes ) > 0 ) {
+		if ( isset( $coupon_codes ) && count( $coupon_codes ) > 0 ) {
 			$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
 			$actives = array();
 			foreach ( $coupon_codes as $code ) {
