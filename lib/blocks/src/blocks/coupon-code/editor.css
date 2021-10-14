@@ -1,5 +1,5 @@
 /**
- * index.js
+ * coupon-is-active/editor.scss
  *
  * Copyright (c) "kento" Karim Rahimpur www.itthinx.com
  *
@@ -14,9 +14,12 @@
  * This header and all notices must be kept intact.
  *
  * @author George Tsiokos
- * @author itthinx
  * @package woocommerce-coupon-shortcodes
  * @since woocommerce-coupon-shortcodes 1.21.0
  */
-import './blocks/coupon-is-active/block.js';
-import './blocks/coupon-code/block.js';
+.wp-block-woocommerce-coupon-shortcodes-coupon-is-active__selected {
+	border: 1px dashed #33333333;
+}
+.woo-coupon-codes-inspector__control {
+	width: 100%;
+}

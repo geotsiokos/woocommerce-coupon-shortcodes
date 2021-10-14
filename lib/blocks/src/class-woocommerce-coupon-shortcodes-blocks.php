@@ -101,6 +101,16 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 				'render_callback' => array( __CLASS__, 'coupon_is_active_render_content' ),
 			)
 		);
+
+		register_block_type(
+			'woocommerce-coupon-shortcodes/coupon-code',
+			array(
+				'editor_script'   => 'woo-codes-blocks-block-js',
+				'editor_style'    => 'woo-codes-blocks-block-editor-css',
+				'style'           => 'woo-codes-blocks-style-css',
+				'render_callback' => array( __CLASS__, 'coupon_code_render_content' ),
+			)
+		);
 	}
 
 	public static function block_categories_all( $block_categories, $block_editor_context ) {
@@ -133,43 +143,68 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		$output = '';
 		$active = false;
 		require_once WOO_CODES_VIEWS_LIB . '/class-woocommerce-coupon-shortcodes-views.php';
-		if ( isset( $attributes['active_coupons'] ) ) {
-			if ( $attributes['active_coupons'] ) {
-				// get all active coupons straight away
-				
-				$active = true;
-			} else {
-				if ( isset( $attributes['coupon_codes_select'] ) ) {error_log( print_r( $attributes, true ) );
-					$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );error_log( print_r( $decoded_coupon_codes, true ) );
-
-					$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
-					$actives = array();
-					foreach ( $decoded_coupon_codes as $code ) {
-						$coupon = new WC_Coupon( $code->value );
-						$actives[] =
-							$wcs_discounts->_wcs_coupon_exists( $coupon ) &&
-							!$wcs_discounts->_wcs_coupon_is_expired( $coupon ) &&
-							$wcs_discounts->_wcs_coupon_is_useable( $coupon );
-					}
-					$decoded_operator = 'and';
-					if ( isset( $attributes['operator_select'] ) ) {
-						$decoded_operator = json_decode( $attributes['operator_select'] );
-					}
-					switch( strtolower( $decoded_operator ) ) {
-						case 'or' :
-							$active = WooCommerce_Coupon_Shortcodes_Views::disj( $actives );
-							break;
-						default :
-							$active = WooCommerce_Coupon_Shortcodes_Views::conj( $actives );
-					}
+		if ( isset( $attributes['active_coupons'] ) && $attributes['active_coupons'] ) {
+			$coupon_codes = self::woocommerce_coupon_shortcodes_get_coupons();
+			//foreach ( $all_coupons as $coupon)
+			$active = true;
+		} else {
+			if ( isset( $attributes['coupon_codes_select'] ) ) {
+				$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
+				$coupon_codes = array();
+				foreach ( $decoded_coupon_codes as $code ) {
+					$coupon_codes[] = $code->value;
 				}
 			}
 		}
+
+		if ( count( $coupon_codes ) > 0 ) {
+			$wcs_discounts = new WooCommerce_Coupon_Shortcodes_WC_Discounts();
+			$actives = array();
+			foreach ( $coupon_codes as $code ) {
+				$coupon = new WC_Coupon( $code );
+				$actives[] =
+					$wcs_discounts->_wcs_coupon_exists( $coupon ) &&
+					!$wcs_discounts->_wcs_coupon_is_expired( $coupon ) &&
+					$wcs_discounts->_wcs_coupon_is_useable( $coupon );
+			}
+			$decoded_operator = 'and';
+			if ( isset( $attributes['operator_select'] ) ) {
+				$decoded_operator = json_decode( $attributes['operator_select'] );
+			}
+			switch( strtolower( $decoded_operator ) ) {
+				case 'or' :
+					$active = WooCommerce_Coupon_Shortcodes_Views::disj( $actives );
+					break;
+				default :
+					$active = WooCommerce_Coupon_Shortcodes_Views::conj( $actives );
+			}
+		}
+			
+		
 		if ( $active ) {
 			$output .='<div class="woo-coupon-codes-coupon-is-active-block-content">' . $content . '</div>';
 		}
 
 		return $output;
+	}
+
+	public static function coupon_code_render_content( $attributes, $content ) {
+		$output = '<div class="wp-block-woocommerce-coupon-shortcodes-coupon-code"><p>';
+		if ( isset( $attributes['coupon_codes_select'] ) ) {
+			$decoded_coupon_codes = json_decode( $attributes['coupon_codes_select'] );
+			error_log( print_r( $decoded_coupon_codes[0]->value, true ) );
+			$coupon_amount = count( $decoded_coupon_codes );
+			for ( $i = 0; $i < $coupon_amount; $i++ ) {
+				$output = sprintf( '<span class="coupon code %s">', esc_attr( $decoded_coupon_codes[$i]->value ) );
+				$output .= esc_html( $decoded_coupon_codes[$i]->value );
+				$output .= '</span>';
+				if ( !($i = ( $coupon_amount - 1 ) ) ) {
+					$output .= esc_html( ',' );
+				}
+			}
+		}
+		$output .= '</p></div>';
+		return '<div class="woo-coupon-codes-coupon-code-block-content">' . $output . '</div>';
 	}
 
 	public static function woocommerce_coupon_shortcodes_get_coupons() {
@@ -184,10 +219,6 @@ class WooCommerce_Coupon_Shortcodes_Blocks {
 		//$coupons = get_posts( $args );
 		// Get coupon titles aka codes
 		$coupon_codes = array();
-		//$coupon_codes[] = array(
-		//	'value' => '*',
-		//	'label' => esc_html__( 'All active coupons', WOO_CODES_PLUGIN_DOMAIN )
-		//);
 		$all_coupons = self::get_coupons();
 		foreach ( $all_coupons as $coupon ) {
 			// Get the name for each coupon post
